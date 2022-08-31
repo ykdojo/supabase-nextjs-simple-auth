@@ -42,3 +42,51 @@ npm run dev
 ```
 
 Then, you should be able to see something like this:
+
+![image](https://user-images.githubusercontent.com/1811651/187799682-9a34eb92-4831-4700-97f9-7285642c6277.png)
+
+### Step 3.5: Review the paths
+
+The following paths are available in this app:
+
+```/ (index)```: it has the main form for sending data to the database. Redirects to /signup if the user is not signed in.
+
+```/signup, /signin```: the signup and sign in forms. Redirects to index if the user is signed in.
+
+```/logout```: it logs out the user.
+
+You should now be able to sign up, sign in, and sign out using these paths.
+
+### Step 4: Create a new table in Supabase
+
+In this example, we're going to create a simple job posting web app.
+
+So, we're going to create a table called jobs.
+
+Go to your project and click create a new table.
+
+![image](https://user-images.githubusercontent.com/1811651/187799891-5c9ada86-a98d-4a20-82c6-f91c340c5219.png)
+
+Call it jobs, enable row level security, and add the following fields:
+
+![image](https://user-images.githubusercontent.com/1811651/187799919-d0b29a20-e11e-442f-8582-ddfa24e10d37.png)
+
+created_by should be a foreign key to the auth.users table.
+
+If this was a real app, it would probably need more columns, but let's keep it simple here.
+
+Notice that we have the is_public column, and it's set to false by default.
+
+The assumption here is that when a user posts a new job posting on the site, we don't want to make it show up automatically on the site. We want to have some kind of approval process so that website admins can decide which job postings are legit enough to show on the site.
+
+### Step 5: Submit the job posting form!
+
+Go to the root path, and try submitting the form!
+
+![image](https://user-images.githubusercontent.com/1811651/187799977-21d3f3df-2564-4a40-99d3-1f9ecd39a9fb.png)
+
+It should have worked! You can verify it on Supabase's dashboard:
+
+![image](https://user-images.githubusercontent.com/1811651/187800049-68367e85-db95-4185-8fc2-2baf47ec562f.png)
+
+How did that happen?
