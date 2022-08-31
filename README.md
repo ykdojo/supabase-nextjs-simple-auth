@@ -12,10 +12,12 @@ It is essentially a managed Postgres environment with additional functionalities
 In this README, I will show you how to set up Supabase auth on both the front end and back end. We're going to use Next.js as an example here. We're going to use this example repo for demonstration purposes.
 
 ### What you need to know before reading this README
-I'm going to assume that you have at least some familiarity with Supabase. Prior knowledge of Next.js will be helpful, but it won't be necessary to understand this article.
+I'm going to assume that you have at least some familiarity with Supabase. Prior knowledge of Next.js will be helpful, but it won't be necessary to understand this readme.
 
 ### Pre-requisites
 We're going to use npm, so make sure it's installed in your system. Make sure to sign up for a Supabase account, as well.
+
+---
 
 ## Now, let's get into the main part of this tutorial.
 
@@ -90,3 +92,101 @@ It should have worked! You can verify it on Supabase's dashboard:
 ![image](https://user-images.githubusercontent.com/1811651/187800049-68367e85-db95-4185-8fc2-2baf47ec562f.png)
 
 How did that happen?
+
+### Step 6: Understand the frontend
+
+Go to src/pages/index.tsx, and you'll see this function to handle form submission:
+
+```typescript
+const onSubmit = async (data: any) => {
+  console.log(data);
+  let result;
+  try {
+   result = await fetch('/api/submit_job_posting', {
+    headers: {
+     Authentication: session.access_token,
+    },
+    method: 'POST',
+    body: JSON.stringify(data),
+   });
+  } catch (err) {
+   console.log(err);
+  }
+  console.log(result);
+  reset();
+};
+```
+
+The important part is, we're sending Supabase's access token / JWT in the headers of the request.
+
+That's this part:
+
+```typescript
+headers: {
+  Authentication: session.access_token,
+},
+```
+
+A JWT is, in short, a key to verify that the user is signed in.
+
+By sending it to our backend code on our API path, we're able to send the backend proof that the user is signed in.
+
+### Step 7: Understand the backend
+
+Go to src/pages/api/submit_job_posting.js. Let's try and understand this file, section by section.
+
+```typescript
+const supabase = createClient(supabaseUrl, supabaseAnonKey);
+const supabaseSecret = createClient(supabaseUrl, supabaseServiceKey);
+```
+
+^These two lines at the top create clients in two different ways.
+
+The first one is the same type of client as the front end - it's safe to use it publicly:
+
+```typescript
+const supabase = createClient(supabaseUrl, supabaseAnonKey);
+```
+
+The second one uses Supabase's secret service key. It has admin-level access to your data:
+
+```typescript
+const supabaseSecret = createClient(supabaseUrl, supabaseServiceKey);
+```
+
+Then:
+
+```typescript
+const input_data = JSON.parse(req.body);
+const jwt = req.headers.authentication;
+```
+
+^these two lines parse the data that was sent from the front end and then retrieve the JWT from the headers.
+
+```typescript
+const { data: user, userError } = await supabase.auth.api.getUser(jwt);
+
+const id = user.identities[0]['id'];
+```
+
+^Then, these two lines retrieve the logged-in user, and we get their ID.
+
+```typescript
+const { data, error } = await supabaseSecret.from('jobs').insert([input_data]);
+```
+
+^Finally, this line inserts the data in our table using admin-level access.
+
+### Why do we need admin-level access?
+
+Another potential way to approach this is - we could insert data directly from the front-end, using row-level security. However, with that, each user will be able to manually set "is_public" to true, which is not what we want.
+
+In order to avoid that, we need to use admin-level access so that we can set it to false to begin with, using our backend code.
+
+---
+
+### Learn more with a practical example
+
+Thank you for reading this README!
+
+If you'd like to learn more about how this particular pattern could be used in a real-world application, feel free to check out [this open-source project of mine]([url](https://github.com/ykdojo/defaang)) that uses it.
