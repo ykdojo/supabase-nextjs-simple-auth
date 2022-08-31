@@ -189,4 +189,4 @@ In order to avoid that, we need to use admin-level access so that we can set it 
 
 Thank you for reading this README!
 
-If you'd like to learn more about how this particular pattern could be used in a real-world application, feel free to check out [this open-source project of mine]([url](https://github.com/ykdojo/defaang)) that uses it.
+If you'd like to learn more about how this particular pattern could be used in a real-world application, feel free to check out [this open-source project of mine](https://github.com/ykdojo/defaang) that uses it.
